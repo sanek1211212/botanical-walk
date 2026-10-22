@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f3e9">
+  <meta name="description" content="Познавательная прогулка для двоих по маршруту среди деревьев.">
+  <title>Лесная прогулка вдвоём</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18372c;
+      --muted: #64796c;
+      --green: #315f48;
+      --green-dark: #244a38;
+      --mint: #e6eddf;
+      --paper: #fffef9;
+      --line: #dfe5d8;
+      --gold: #bb8450;
+      --page: #f4f3e9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 85% 2%, #e2e8d5 0, transparent 29rem),
+        var(--page);
+      font: 15px/1.55 "Avenir Next", Avenir, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid #b38755; outline-offset: 3px; }
+    .app { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 25px 0 54px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark {
+      display: grid; width: 42px; height: 42px; place-items: center;
+      border: 1px solid #cdd9c7; border-radius: 14px; color: var(--green); background: #edf1e7;
+    }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .brand-name { margin: 0; font-size: 13px; font-weight: 750; letter-spacing: .01em; }
+    .brand-caption { margin: 1px 0 0; color: var(--muted); font-size: 11px; }
+    .saved-note { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
+    .saved-dot { width: 7px; height: 7px; border-radius: 50%; background: #78956d; }
+    .hero {
+      position: relative; overflow: hidden; min-height: 280px; margin-bottom: 22px;
+      padding: clamp(25px, 5vw, 48px); border-radius: 28px;
+      color: #f8f6ec; background: #254b3a;
+      box-shadow: 0 18px 45px #2746311a;
+    }
+    .hero::after {
+      position: absolute; right: -20px; bottom: -118px; width: 380px; height: 380px;
+      border: 1px solid #ffffff20; border-radius: 50%; content: "";
+      box-shadow: 0 0 0 32px #ffffff08, 0 0 0 66px #ffffff06, 0 0 0 104px #ffffff05;
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 620px; }
+    .eyebrow { margin: 0 0 12px; color: #c7d7b7; font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    .hero h1 { max-width: 530px; margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(36px, 7vw, 62px); font-weight: 500; letter-spacing: -.045em; line-height: 1.01; }
+    .hero-copy { max-width: 480px; margin: 17px 0 0; color: #e0e8dc; font-size: 14px; }
+    .hero-bottom { display: flex; align-items: center; gap: 12px; margin-top: 26px; color: #d3dfce; font-size: 12px; }
+    .hero-bottom span:first-child { display: inline-grid; width: 31px; height: 31px; place-items: center; border: 1px solid #ffffff43; border-radius: 50%; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: minmax(255px, .82fr) minmax(0, 1.5fr); align-items: start; gap: 18px; }
+    .panel { border: 1px solid var(--line); border-radius: 20px; background: var(--paper); box-shadow: 0 9px 30px #31453308; }
+    .route-panel { position: sticky; top: 16px; padding: 22px 20px 18px; }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .panel-heading h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-weight: 500; letter-spacing: -.025em; }
+    .panel-heading p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .route-count { flex: none; padding: 5px 9px; border-radius: 99px; color: var(--green); background: var(--mint); font-size: 10px; font-weight: 750; }
+    .progress-box { margin: 19px 0 17px; }
+    .progress-label { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 7px; color: var(--muted); font-size: 11px; }
+    .progress-label strong { color: var(--green); font-weight: 750; }
+    .progress-track { height: 5px; overflow: hidden; border-radius: 9px; background: #e8ece3; }
+    .progress-value { width: 0; height: 100%; border-radius: inherit; background: #6a8b62; transition: width .25s ease; }
+    .stop-list { position: relative; display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+    .stop-list::before { position: absolute; top: 17px; bottom: 17px; left: 16px; width: 1px; background: #e0e7dc; content: ""; }
+    .stop-item { position: relative; }
+    .stop-button {
+      display: grid; width: 100%; grid-template-columns: 33px minmax(0, 1fr) auto; align-items: center; gap: 9px;
+      padding: 7px 5px; border: 1px solid transparent; border-radius: 12px; color: var(--ink);
+      background: transparent; text-align: left; cursor: pointer; transition: background .16s, border-color .16s;
+    }
+    .stop-button:hover:not(:disabled) { background: #f7f8f2; }
+    .stop-button:disabled { color: #94a196; cursor: default; }
+    .stop-button.active { border-color: #dce6d7; background: #f2f6ee; }
+    .stop-number {
+      z-index: 1; display: grid; width: 32px; height: 32px; place-items: center;
+      border: 1px solid #dce4d8; border-radius: 50%; color: #748473; background: var(--paper); font-size: 10px; font-weight: 750;
+    }
+    .stop-button.active .stop-number { border-color: var(--green); color: white; background: var(--green); }
+    .stop-button.done .stop-number { border-color: #dce9d7; color: var(--green); background: #e7efe2; }
+    .stop-name { overflow: hidden; font-size: 12px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    .stop-state { color: #698365; font-size: 13px; }
+    .route-hint { margin: 15px 0 0; padding-top: 13px; border-top: 1px solid #edf0e9; color: var(--muted); font-size: 10px; }
+    .content { display: grid; gap: 14px; }
+    .stop-card { overflow: hidden; }
+    .stop-art {
+      position: relative; display: flex; min-height: 146px; align-items: end; justify-content: space-between; overflow: hidden;
+      padding: 20px 23px; background: linear-gradient(120deg, #e8eee2, #f4f1e5);
+    }
+    .stop-art::after {
+      position: absolute; right: 29px; bottom: -82px; width: 190px; height: 190px;
+      border: 1px solid #708b692c; border-radius: 50%; content: "";
+      box-shadow: 0 0 0 22px #708b690a, 0 0 0 45px #708b6908;
+    }
+    .art-copy { position: relative; z-index: 1; }
+    .art-kicker { margin: 0 0 5px; color: #71866b; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .stop-art h2 { max-width: 480px; margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(26px, 4vw, 36px); font-weight: 500; letter-spacing: -.035em; line-height: 1.08; }
+    .tree-icon { position: relative; z-index: 1; display: grid; width: 74px; height: 74px; flex: none; place-items: center; border: 1px solid #718b6630; border-radius: 50%; color: var(--green); background: #ffffff80; font-size: 34px; }
+    .stop-body { padding: 22px clamp(19px, 4vw, 30px) 26px; }
+    .arrival {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 15px 16px; border: 1px solid #e4e9df; border-radius: 14px; background: #fafbf7;
+    }
+    .arrival p { margin: 0; color: var(--muted); font-size: 11px; }
+    .arrival strong { display: block; margin-bottom: 2px; color: var(--ink); font-size: 13px; }
+    .here-button {
+      min-height: 43px; flex: none; padding: 9px 16px; border: 0; border-radius: 11px;
+      color: white; background: var(--green); font-size: 12px; font-weight: 750; cursor: pointer;
+      transition: background .16s, transform .16s;
+    }
+    .here-button:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+    .here-button:disabled { color: var(--green); background: #e5eee0; cursor: default; }
+    .locked-note { display: none; margin: 12px 0 0; color: var(--muted); font-size: 11px; }
+    .locked-note.visible { display: block; }
+    .details { display: none; }
+    .details.visible { display: block; animation: reveal .28s ease both; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .detail-block { margin-top: 23px; }
+    .detail-label { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: #71836d; font-size: 10px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .detail-label span { font-size: 15px; }
+    .fact-text { margin: 0; color: #385045; font-family: Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.56; }
+    .did-you-know { margin-top: 13px; padding: 12px 14px; border-left: 2px solid #bd956b; border-radius: 0 10px 10px 0; color: #675840; background: #f8f3e9; font-size: 12px; }
+    .did-you-know strong { color: #785b38; }
+    .prompt-box { padding: 16px 17px; border: 1px solid #dfe8d9; border-radius: 14px; background: #f2f6ee; }
+    .prompt-box .detail-label { margin-bottom: 7px; color: var(--green); }
+    .prompt-text { margin: 0; color: #2e4d3b; font-size: 14px; font-weight: 650; }
+    .next-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 17px; border-top: 1px solid #edf0e9; }
+    .next-caption { color: var(--muted); font-size: 10px; }
+    .next-button, .restart-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 40px; padding: 9px 14px; border: 1px solid #dce5d7; border-radius: 10px;
+      color: var(--green); background: white; font-size: 11px; font-weight: 750; cursor: pointer;
+    }
+    .next-button:hover, .restart-button:hover { background: #f3f7f0; }
+    .complete-card { display: none; padding: 27px; text-align: center; }
+    .complete-card.visible { display: block; }
+    .complete-icon { display: grid; width: 58px; height: 58px; margin: 0 auto 14px; place-items: center; border-radius: 50%; color: var(--green); background: var(--mint); font-size: 27px; }
+    .complete-card h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 28px; font-weight: 500; }
+    .complete-card p { max-width: 390px; margin: 9px auto 19px; color: var(--muted); font-size: 13px; }
+    .toast {
+      position: fixed; z-index: 3; right: 16px; bottom: 18px; left: 16px; width: fit-content; max-width: min(440px, calc(100% - 32px)); margin: 0 auto;
+      padding: 11px 15px; border: 1px solid #d3dfcb; border-radius: 12px; color: var(--ink); background: white;
+      box-shadow: 0 10px 35px #1e3b2426; opacity: 0; transform: translateY(8px); pointer-events: none; transition: .2s;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    @media (max-width: 700px) {
+      .app { width: min(100% - 22px, 520px); padding-top: 16px; }
+      .topbar { margin-bottom: 17px; }
+      .hero { min-height: 0; margin-bottom: 14px; padding: 27px 23px 25px; border-radius: 23px; }
+      .hero::after { right: -128px; bottom: -120px; }
+      .hero-copy { max-width: 350px; font-size: 13px; }
+      .layout { grid-template-columns: 1fr; gap: 13px; }
+      .route-panel { position: static; padding: 17px 16px 13px; }
+      .route-panel .panel-heading h2 { font-size: 20px; }
+      .progress-box { margin: 13px 0 10px; }
+      .stop-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+      .stop-list::before { display: none; }
+      .stop-button { grid-template-columns: 25px minmax(0, 1fr); gap: 6px; padding: 5px 3px; }
+      .stop-number { width: 25px; height: 25px; font-size: 9px; }
+      .stop-name { font-size: 10px; }
+      .stop-state { display: none; }
+      .route-hint { margin-top: 10px; padding-top: 9px; font-size: 9px; }
+      .stop-art { min-height: 122px; padding: 16px 18px; }
+      .tree-icon { width: 57px; height: 57px; font-size: 27px; }
+      .stop-body { padding: 16px 17px 21px; }
+      .fact-text { font-size: 16px; }
+      .arrival { align-items: flex-start; flex-direction: column; }
+      .here-button { width: 100%; }
+      .next-row { align-items: flex-start; flex-direction: column; }
+      .next-button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9m0 4c-4 0-7-2.7-7-6.5C9.5 9.5 12 12 12 16Zm0-2c0-4.3 2.7-7.3 7-8-0.1 4.6-2.5 8-7 8Z"/><path d="M8 21h8"/></svg>
+        </div>
+        <div><p class="brand-name">Ботаническая прогулка</p><p class="brand-caption">маленькое приключение для двоих</p></div>
+      </div>
+      <div class="saved-note"><span class="saved-dot"></span><span id="saved-caption">Прогресс сохранится в этом браузере</span></div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-content">
+        <p class="eyebrow">9 остановок · один общий маршрут</p>
+        <h1 id="page-title">Лесная прогулка вдвоём</h1>
+        <p class="hero-copy">Узнавайте деревья, замечайте детали и открывайте сад с новой стороны. На каждой остановке — короткий факт и задание, которое интересно пройти вместе.</p>
+        <div class="hero-bottom"><span aria-hidden="true">↘</span><span>Идите в своём темпе. Следующая остановка уже ждёт.</span></div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <aside class="panel route-panel" aria-label="Маршрут и прогресс">
+        <div class="panel-heading">
+          <div><h2>Ваш маршрут</h2><p>Двигайтесь от дерева к дереву</p></div>
+          <span class="route-count">9 точек</span>
+        </div>
+        <div class="progress-box">
+          <div class="progress-label"><span>Пройдено</span><strong id="progress-text">0 из 9</strong></div>
+          <div class="progress-track" role="progressbar" aria-label="Прогресс маршрута" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><div class="progress-value" id="progress-value"></div></div>
+        </div>
+        <ol class="stop-list" id="stop-list"></ol>
+        <p class="route-hint">Порядок остановок взят из предоставленного списка деревьев.</p>
+      </aside>
+
+      <section class="content" aria-label="Остановка маршрута">
+        <article class="panel stop-card" id="stop-card"></article>
+        <article class="panel complete-card" id="complete-card" aria-live="polite">
+          <div class="complete-icon" aria-hidden="true">✦</div>
+          <h2>Маршрут пройден!</h2>
+          <p>Вы узнали девять деревьев и прошли тропу вместе. Сохраните это настроение — а если захотите, прогуляйтесь ещё раз и откройте знакомые места заново.</p>
+          <button class="restart-button" id="restart-button" type="button">Пройти маршрут снова</button>
+        </article>
+      </section>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+  <script>
+    const stops = [
+      {
+        name: "Ель сибирская", icon: "🌲",
+        fact: "Вечнозелёное хвойное дерево с густой конусовидной кроной и колючей хвоей. Её силуэт — один из самых узнаваемых образов сибирской тайги.",
+        extra: "Конусовидная крона — характерная форма ели: ветви расположены ярусами вокруг прямого ствола.",
+        prompt: "Посмотрите на крону с разных сторон. Как думаете, что помогает дереву сохранять такую чёткую форму?"
+      },
+      {
+        name: "Берёза пушистая", icon: "🌿",
+        fact: "Берёзу пушистую легко узнать по светлому стволу и мягко опушённым молодым побегам и листьям. Она отличается высокой зимостойкостью.",
+        extra: "Опушение молодых частей — заметная особенность этого вида; присмотритесь к тонким веточкам, а не только к стволу.",
+        prompt: "Найдите на берёзе самый светлый участок ствола. Какие детали помогают отличить её от других деревьев поблизости?"
+      },
+      {
+        name: "Черёмуха Маака", icon: "🍂",
+        fact: "Дальневосточная черёмуха Маака знаменита необычной глянцевой корой золотисто-янтарного оттенка. Она отслаивается тонкими слоями.",
+        extra: "Кора может выглядеть по-разному в зависимости от освещения: попробуйте взглянуть на ствол с другой стороны.",
+        prompt: "Найдите на коре оттенки, которые напоминают металл или драгоценный камень. Как бы вы назвали этот цвет?"
+      },
+      {
+        name: "Орех маньчжурский", icon: "🌳",
+        fact: "Это мощное дерево с огромными перистыми листьями длиной до одного метра и прочными плодами, напоминающими грецкий орех.",
+        extra: "Большой лист ореха составлен из множества отдельных листочков, расположенных вдоль общей оси.",
+        prompt: "Оцените длину листа на глаз: сравните его с вашей ладонью или предплечьем. Какой предмет подойдёт для такой же наглядной меры?"
+      },
+      {
+        name: "Яблоня Недзвецкого", icon: "🌸",
+        fact: "Декоративная яблоня с пурпурным оттенком во всём: от красноватых листьев до ярких малиновых цветов.",
+        extra: "Пурпурный цвет заметен сразу в нескольких частях растения — попробуйте найти его и на листве, и на ветвях.",
+        prompt: "Найдите самый заметный оттенок на этом дереве. С каким ещё растением в саду он контрастирует сильнее всего?"
+      },
+      {
+        name: "Вяз гладкий", icon: "🍃",
+        fact: "Крупное дерево с раскидистой кроной. Его рельефные листья легко узнать по асимметричному основанию: две половины у черешка неодинаковы.",
+        extra: "Асимметрия особенно заметна там, где листовая пластинка соединяется с черешком.",
+        prompt: "Рассмотрите лист снизу вверх. Получается ли у вас найти лист, у которого одна сторона основания чуть ниже другой?"
+      },
+      {
+        name: "Черёмуха розоцветная", icon: "🌺",
+        fact: "Декоративная форма черёмухи, которая весной обильно покрывается нежно-розовыми кистями ароматных цветов.",
+        extra: "Кисть — это соцветие, в котором цветки расположены вдоль общей вытянутой оси.",
+        prompt: "Представьте дерево во время цветения. Какие детали вы бы включили в короткую открытку о весеннем саде?"
+      },
+      {
+        name: "Ива извилистая", icon: "〰️",
+        fact: "Необычная ива с декоративно закрученными ветвями и волнистыми листьями. Даже зимой её ветви сохраняют выразительный графичный вид.",
+        extra: "У извилистой ивы форма ветвей становится важной частью облика дерева в любое время года.",
+        prompt: "Проследите взглядом за одной веткой. На что она похожа: на волну, спираль или линию на карте?"
+      },
+      {
+        name: "Туя западная", icon: "🌿",
+        fact: "Вечнозелёное хвойное растение из семейства Кипарисовых с плоской чешуйчатой хвоей. Оно завершает этот отрезок тропы.",
+        extra: "У туи хвоя выглядит не как отдельные длинные иголки, а как небольшие плоские чешуйки на побегах.",
+        prompt: "Сравните побег туи с хвоей ели с первой остановки. Какие два отличия вы заметили?"
+      }
+    ];
+
+    const storageKey = "botanical-date-progress-v1";
+    const stopList = document.getElementById("stop-list");
+    const stopCard = document.getElementById("stop-card");
+    const completeCard = document.getElementById("complete-card");
+    const progressText = document.getElementById("progress-text");
+    const progressValue = document.getElementById("progress-value");
+    const progressBar = document.querySelector('[role="progressbar"]');
+    const toast = document.getElementById("toast");
+    let visited = loadProgress();
+    let selected = Math.min(visited.length, stops.length - 1);
+    let toastTimer;
+    const telegramApp = window.Telegram?.WebApp;
+    const isTelegramMiniApp = Boolean(telegramApp?.initData);
+
+    if (telegramApp) {
+      telegramApp.ready();
+      telegramApp.expand();
+    }
+    if (isTelegramMiniApp) {
+      document.getElementById("saved-caption").textContent = "Прогресс сохранится в этом Telegram";
+    }
+
+    function loadProgress() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved === null) return [];
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.every((index, position) => index === position && Number.isInteger(index) && index >= 0 && index < stops.length)) {
+          return parsed;
+        }
+        showToast("Сохранённый прогресс не распознан — начнём с первой остановки.");
+      } catch (error) {
+        console.error("Не удалось прочитать сохранённый прогресс:", error);
+        showToast("Не удалось прочитать сохранённый прогресс. Можно начать заново.");
+      }
+      return [];
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(visited));
+      } catch (error) {
+        console.error("Не удалось сохранить прогресс:", error);
+        showToast("Не удалось сохранить прогресс на этом устройстве.");
+      }
+    }
+
+    function renderRoute() {
+      const nextIndex = visited.length;
+      stopList.innerHTML = stops.map((stop, index) => {
+        const isDone = visited.includes(index);
+        const isActive = selected === index;
+        const isLocked = index > nextIndex;
+        const state = isDone ? "✓" : isActive ? "•" : "";
+        return `<li class="stop-item"><button class="stop-button${isDone ? " done" : ""}${isActive ? " active" : ""}" type="button" data-stop="${index}" ${isLocked ? "disabled" : ""} aria-current="${isActive ? "step" : "false"}"><span class="stop-number">${String(index + 1).padStart(2, "0")}</span><span class="stop-name">${stop.name}</span><span class="stop-state" aria-hidden="true">${state}</span></button></li>`;
+      }).join("");
+      stopList.querySelectorAll("[data-stop]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selected = Number(button.dataset.stop);
+          render();
+        });
+      });
+      progressText.textContent = `${visited.length} из ${stops.length}`;
+      progressValue.style.width = `${(visited.length / stops.length) * 100}%`;
+      progressBar.setAttribute("aria-valuenow", String(visited.length));
+    }
+
+    function renderStop() {
+      const stop = stops[selected];
+      const index = selected;
+      const isDone = visited.includes(index);
+      const isUnlocked = index <= visited.length;
+      stopCard.innerHTML = `
+        <div class="stop-art">
+          <div class="art-copy"><p class="art-kicker">Остановка ${String(index + 1).padStart(2, "0")} · из ${stops.length}</p><h2>${stop.name}</h2></div>
+          <div class="tree-icon" aria-hidden="true">${stop.icon}</div>
+        </div>
+        <div class="stop-body">
+          <div class="arrival">
+            <p><strong>${isDone ? "Вы уже здесь" : "Нашли это дерево?"}</strong>${isDone ? "Отметка сохранена. Можно перечитать факт или идти дальше." : "Отметьтесь у остановки, чтобы открыть факт и задание."}</p>
+            <button class="here-button" id="here-button" type="button" ${isDone || !isUnlocked ? "disabled" : ""}>${isDone ? "✓ Мы здесь" : "Мы тут"}</button>
+          </div>
+          <p class="locked-note${isUnlocked ? "" : " visible"}">Сначала пройдите предыдущие остановки — так маршрут откроется по порядку.</p>
+          <div class="details${isDone ? " visible" : ""}" id="details">
+            <section class="detail-block"><h3 class="detail-label"><span aria-hidden="true">✳</span>Узнайте дерево</h3><p class="fact-text">${stop.fact}</p><div class="did-you-know"><strong>На что обратить внимание.</strong> ${stop.extra}</div></section>
+            <section class="detail-block prompt-box"><h3 class="detail-label"><span aria-hidden="true">↗</span>Задание вдвоём</h3><p class="prompt-text">${stop.prompt}</p></section>
+            ${index < stops.length - 1 ? `<div class="next-row"><span class="next-caption">Продолжайте, когда будете готовы</span><button class="next-button" id="next-button" type="button">Следующая остановка <span aria-hidden="true">→</span></button></div>` : ""}
+          </div>
+        </div>`;
+
+      const hereButton = document.getElementById("here-button");
+      if (!isDone && isUnlocked) {
+        hereButton.addEventListener("click", () => {
+          if (visited.length !== index) return;
+          visited = [...visited, index];
+          saveProgress();
+          if (isTelegramMiniApp) telegramApp.HapticFeedback?.impactOccurred("light");
+          render();
+          document.getElementById("details").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      }
+      document.getElementById("next-button")?.addEventListener("click", () => {
+        selected = Math.min(index + 1, stops.length - 1);
+        render();
+        stopCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    function render() {
+      const isComplete = visited.length === stops.length;
+      stopCard.hidden = isComplete;
+      completeCard.classList.toggle("visible", isComplete);
+      renderRoute();
+      if (!isComplete) renderStop();
+    }
+
+    document.getElementById("restart-button").addEventListener("click", () => {
+      visited = [];
+      selected = 0;
+      saveProgress();
+      if (isTelegramMiniApp) telegramApp?.HapticFeedback?.selectionChanged();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    render();
+  </script>
+</body>
+</html>
