@@ -74,6 +74,43 @@
     .progress-label strong { color: var(--green); font-weight: 750; }
     .progress-track { height: 5px; overflow: hidden; border-radius: 9px; background: #e8ece3; }
     .progress-value { width: 0; height: 100%; border-radius: inherit; background: #6a8b62; transition: width .25s ease; }
+    .map-panel { margin-bottom: 18px; padding: 20px; }
+    .map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 15px; }
+    .map-help { margin: 0; color: var(--muted); font-size: 11px; }
+    .map-actions { display: flex; align-items: center; gap: 7px; }
+    .map-control, .map-source, .map-link {
+      display: inline-flex; min-height: 34px; align-items: center; justify-content: center; gap: 6px;
+      padding: 6px 10px; border: 1px solid var(--line); border-radius: 9px;
+      color: var(--green); background: white; font-size: 11px; font-weight: 700; text-decoration: none; cursor: pointer;
+    }
+    .map-control { min-width: 35px; padding: 6px 9px; font-size: 16px; }
+    .map-control:disabled { opacity: .45; cursor: not-allowed; }
+    .map-zoom-label { min-width: 40px; color: var(--muted); font-size: 10px; text-align: center; }
+    .map-viewport { max-height: min(72vh, 760px); overflow: auto; overscroll-behavior: contain; border: 1px solid #e3e8df; border-radius: 13px; background: #f4f6ee; scrollbar-color: #b5c4ad #edf1e9; }
+    .map-canvas { position: relative; width: 100%; aspect-ratio: 2200 / 1555; }
+    .map-image { display: block; width: 100%; height: 100%; }
+    .map-connectors { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .map-connectors line { stroke: #9c7045; stroke-width: 2; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+    .map-connectors circle { fill: #fffef9; stroke: #9c7045; stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .map-pin {
+      position: absolute; z-index: 1; display: grid; width: clamp(28px, 3.4vw, 40px); height: clamp(28px, 3.4vw, 40px);
+      place-items: center; padding: 0; transform: translate(-50%, -50%);
+      border: 3px solid #fffef9; border-radius: 50%; color: white; background: var(--green);
+      box-shadow: 0 2px 8px #102d1c66, 0 0 0 1px #244a3866;
+      font-size: 12px; font-weight: 800; cursor: pointer; transition: transform .15s, background .15s, box-shadow .15s;
+    }
+    .map-pin:hover:not(:disabled) { z-index: 2; transform: translate(-50%, -50%) scale(1.14); }
+    .map-pin.active { z-index: 2; color: #fff; background: #b4783e; box-shadow: 0 0 0 4px #fffef9, 0 0 0 7px #b4783e99, 0 4px 12px #102d1c66; }
+    .map-pin.done { background: #234b38; }
+    .map-pin.active.done { background: #b4783e; }
+    .map-pin:disabled { opacity: .62; cursor: not-allowed; }
+    .map-entry { position: absolute; z-index: 1; display: flex; align-items: center; gap: 5px; transform: translate(-50%, -50%); color: #a3422e; font-size: 10px; font-weight: 850; white-space: nowrap; text-shadow: 0 1px white, 1px 0 white, -1px 0 white, 0 -1px white; pointer-events: none; }
+    .map-entry::before { width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; background: #c85038; box-shadow: 0 1px 5px #0006; content: ""; }
+    .map-key { display: flex; flex-wrap: wrap; gap: 7px 15px; margin-top: 11px; color: var(--muted); font-size: 10px; }
+    .map-key span { display: inline-flex; align-items: center; gap: 6px; }
+    .map-key-dot { width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 1px #355d49; }
+    .map-key-dot.active { background: #b4783e; box-shadow: 0 0 0 1px #9b6738; }
+    .map-key-dot.done { background: #234b38; box-shadow: 0 0 0 1px #234b38; }
     .stop-list { position: relative; display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
     .stop-list::before { position: absolute; top: 17px; bottom: 17px; left: 16px; width: 1px; background: #e0e7dc; content: ""; }
     .stop-item { position: relative; }
@@ -123,6 +160,8 @@
     }
     .here-button:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
     .here-button:disabled { color: var(--green); background: #e5eee0; cursor: default; }
+    .map-link { min-height: 32px; margin-top: 9px; border-color: transparent; background: transparent; }
+    .map-link:hover { background: #f3f7f0; }
     .locked-note { display: none; margin: 12px 0 0; color: var(--muted); font-size: 11px; }
     .locked-note.visible { display: block; }
     .details { display: none; }
@@ -162,6 +201,14 @@
       .hero { min-height: 0; margin-bottom: 14px; padding: 27px 23px 25px; border-radius: 23px; }
       .hero::after { right: -128px; bottom: -120px; }
       .hero-copy { max-width: 350px; font-size: 13px; }
+      .map-panel { margin-bottom: 13px; padding: 14px; border-radius: 17px; }
+      .map-toolbar { align-items: flex-start; flex-direction: column; }
+      .map-actions { width: 100%; }
+      .map-source { margin-left: auto; }
+      .map-viewport { max-height: 62vh; }
+      .map-pin { width: 30px; height: 30px; font-size: 10px; }
+      .map-entry { font-size: 8px; }
+      .map-entry::before { width: 10px; height: 10px; }
       .layout { grid-template-columns: 1fr; gap: 13px; }
       .route-panel { position: static; padding: 17px 16px 13px; }
       .route-panel .panel-heading h2 { font-size: 20px; }
@@ -208,6 +255,36 @@
       </div>
     </section>
 
+    <section class="panel map-panel" aria-labelledby="map-title">
+      <div class="panel-heading">
+        <div><h2 id="map-title">Карта маршрута</h2><p>Нажмите на номер дерева, чтобы выбрать остановку</p></div>
+        <span class="route-count">Ботанический сад ИГУ</span>
+      </div>
+      <div class="map-toolbar">
+        <p class="map-help">Метки показывают деревья из вашего списка на схеме сада.</p>
+        <div class="map-actions" aria-label="Управление картой">
+          <button class="map-control" id="zoom-out" type="button" aria-label="Уменьшить карту" title="Уменьшить карту" disabled>−</button>
+          <span class="map-zoom-label" id="zoom-label" aria-live="polite">100%</span>
+          <button class="map-control" id="zoom-in" type="button" aria-label="Увеличить карту" title="Увеличить карту">+</button>
+          <button class="map-control" id="zoom-reset" type="button" aria-label="Показать всю карту" title="Показать всю карту">↗</button>
+          <a class="map-source" href="assets/botanical-garden-map.pdf" target="_blank" rel="noopener">Открыть PDF</a>
+        </div>
+      </div>
+      <div class="map-viewport" id="map-viewport" role="region" aria-label="Интерактивная схема ботанического сада">
+        <div class="map-canvas" id="map-canvas">
+          <img class="map-image" src="assets/botanical-garden-map.png" alt="Схема основных объектов на территории малого дендрария Ботанического сада ИГУ">
+          <svg class="map-connectors" viewBox="0 0 2200 1555" preserveAspectRatio="none" aria-hidden="true"><g id="map-leaders"></g></svg>
+          <div id="map-pins"></div>
+          <span class="map-entry" style="left:55.82%;top:90.7%">Вход</span>
+        </div>
+      </div>
+      <div class="map-key" aria-label="Обозначения карты">
+        <span><i class="map-key-dot active"></i>Текущая остановка</span>
+        <span><i class="map-key-dot"></i>Следующие деревья</span>
+        <span><i class="map-key-dot done"></i>Уже отмечено</span>
+      </div>
+    </section>
+
     <div class="layout">
       <aside class="panel route-panel" aria-label="Маршрут и прогресс">
         <div class="panel-heading">
@@ -219,7 +296,7 @@
           <div class="progress-track" role="progressbar" aria-label="Прогресс маршрута" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><div class="progress-value" id="progress-value"></div></div>
         </div>
         <ol class="stop-list" id="stop-list"></ol>
-        <p class="route-hint">Порядок остановок взят из предоставленного списка деревьев.</p>
+        <p class="route-hint">Выбирайте текущую точку на карте или в списке. Остановка откроется после отметки «Мы тут» на предыдущем дереве.</p>
       </aside>
 
       <section class="content" aria-label="Остановка маршрута">
@@ -240,54 +317,71 @@
     const stops = [
       {
         name: "Ель сибирская", icon: "🌲",
+        map: { x: 1108, y: 1036 },
+        mapOffset: { x: 25, y: 12 },
         fact: "Вечнозелёное хвойное дерево с густой конусовидной кроной и колючей хвоей. Её силуэт — один из самых узнаваемых образов сибирской тайги.",
         extra: "Конусовидная крона — характерная форма ели: ветви расположены ярусами вокруг прямого ствола.",
         prompt: "Посмотрите на крону с разных сторон. Как думаете, что помогает дереву сохранять такую чёткую форму?"
       },
       {
         name: "Берёза пушистая", icon: "🌿",
+        map: { x: 574, y: 980 },
         fact: "Берёзу пушистую легко узнать по светлому стволу и мягко опушённым молодым побегам и листьям. Она отличается высокой зимостойкостью.",
         extra: "Опушение молодых частей — заметная особенность этого вида; присмотритесь к тонким веточкам, а не только к стволу.",
         prompt: "Найдите на берёзе самый светлый участок ствола. Какие детали помогают отличить её от других деревьев поблизости?"
       },
       {
         name: "Черёмуха Маака", icon: "🍂",
+        map: { x: 566, y: 754 },
+        mapOffset: { x: 16, y: -45 },
         fact: "Дальневосточная черёмуха Маака знаменита необычной глянцевой корой золотисто-янтарного оттенка. Она отслаивается тонкими слоями.",
         extra: "Кора может выглядеть по-разному в зависимости от освещения: попробуйте взглянуть на ствол с другой стороны.",
         prompt: "Найдите на коре оттенки, которые напоминают металл или драгоценный камень. Как бы вы назвали этот цвет?"
       },
       {
         name: "Орех маньчжурский", icon: "🌳",
+        map: { x: 517, y: 619 },
+        mapOffset: { x: -16, y: -12 },
         fact: "Это мощное дерево с огромными перистыми листьями длиной до одного метра и прочными плодами, напоминающими грецкий орех.",
         extra: "Большой лист ореха составлен из множества отдельных листочков, расположенных вдоль общей оси.",
         prompt: "Оцените длину листа на глаз: сравните его с вашей ладонью или предплечьем. Какой предмет подойдёт для такой же наглядной меры?"
       },
       {
         name: "Яблоня Недзвецкого", icon: "🌸",
+        map: { x: 1058, y: 904 },
+        mapOffset: { x: -18, y: -18 },
         fact: "Декоративная яблоня с пурпурным оттенком во всём: от красноватых листьев до ярких малиновых цветов.",
         extra: "Пурпурный цвет заметен сразу в нескольких частях растения — попробуйте найти его и на листве, и на ветвях.",
         prompt: "Найдите самый заметный оттенок на этом дереве. С каким ещё растением в саду он контрастирует сильнее всего?"
       },
       {
         name: "Вяз гладкий", icon: "🍃",
+        map: { x: 1050, y: 950 },
+        mapOffset: { x: -18, y: 22 },
         fact: "Крупное дерево с раскидистой кроной. Его рельефные листья легко узнать по асимметричному основанию: две половины у черешка неодинаковы.",
         extra: "Асимметрия особенно заметна там, где листовая пластинка соединяется с черешком.",
         prompt: "Рассмотрите лист снизу вверх. Получается ли у вас найти лист, у которого одна сторона основания чуть ниже другой?"
       },
       {
         name: "Черёмуха розоцветная", icon: "🌺",
+        map: { x: 1193, y: 837 },
+        mapOffset: { x: 0, y: -15 },
         fact: "Декоративная форма черёмухи, которая весной обильно покрывается нежно-розовыми кистями ароматных цветов.",
         extra: "Кисть — это соцветие, в котором цветки расположены вдоль общей вытянутой оси.",
         prompt: "Представьте дерево во время цветения. Какие детали вы бы включили в короткую открытку о весеннем саде?"
       },
       {
         name: "Ива извилистая", icon: "〰️",
+        map: { x: 1371, y: 837 },
+        mapOffset: { x: 16, y: -10 },
         fact: "Необычная ива с декоративно закрученными ветвями и волнистыми листьями. Даже зимой её ветви сохраняют выразительный графичный вид.",
         extra: "У извилистой ивы форма ветвей становится важной частью облика дерева в любое время года.",
         prompt: "Проследите взглядом за одной веткой. На что она похожа: на волну, спираль или линию на карте?"
       },
       {
         name: "Туя западная", icon: "🌿",
+        map: { x: 1382, y: 861 },
+        mapOffset: { x: 25, y: 20 },
         fact: "Вечнозелёное хвойное растение из семейства Кипарисовых с плоской чешуйчатой хвоей. Оно завершает этот отрезок тропы.",
         extra: "У туи хвоя выглядит не как отдельные длинные иголки, а как небольшие плоские чешуйки на побегах.",
         prompt: "Сравните побег туи с хвоей ели с первой остановки. Какие два отличия вы заметили?"
@@ -302,6 +396,14 @@
     const progressValue = document.getElementById("progress-value");
     const progressBar = document.querySelector('[role="progressbar"]');
     const toast = document.getElementById("toast");
+    const mapViewport = document.getElementById("map-viewport");
+    const mapCanvas = document.getElementById("map-canvas");
+    const mapPins = document.getElementById("map-pins");
+    const mapLeaders = document.getElementById("map-leaders");
+    const zoomLabel = document.getElementById("zoom-label");
+    const zoomIn = document.getElementById("zoom-in");
+    const zoomOut = document.getElementById("zoom-out");
+    let mapZoom = 1;
     let visited = loadProgress();
     let selected = Math.min(visited.length, stops.length - 1);
     let toastTimer;
@@ -366,6 +468,69 @@
       progressText.textContent = `${visited.length} из ${stops.length}`;
       progressValue.style.width = `${(visited.length / stops.length) * 100}%`;
       progressBar.setAttribute("aria-valuenow", String(visited.length));
+      renderMapPins();
+    }
+
+    function renderMapPins() {
+      const nextIndex = visited.length;
+      mapPins.innerHTML = stops.map((stop, index) => {
+        const isDone = visited.includes(index);
+        const isActive = selected === index;
+        const isLocked = index > nextIndex;
+        const offset = stop.mapOffset || { x: 0, y: 0 };
+        const state = isDone ? "уже отмечена" : isLocked ? "откроется после предыдущих остановок" : "доступна";
+        return `<button class="map-pin${isActive ? " active" : ""}${isDone ? " done" : ""}" type="button" data-map-stop="${index}" style="left:calc(${(stop.map.x / 2200) * 100}% + ${offset.x}px);top:calc(${(stop.map.y / 1555) * 100}% + ${offset.y}px)" aria-label="Остановка ${index + 1}: ${stop.name}, ${state}" aria-pressed="${isActive}" ${isLocked ? "disabled" : ""}>${index + 1}</button>`;
+      }).join("");
+      const scaleX = mapCanvas.clientWidth / 2200;
+      const scaleY = mapCanvas.clientHeight / 1555;
+      mapLeaders.innerHTML = stops.map((stop) => {
+        const offset = stop.mapOffset || { x: 0, y: 0 };
+        if (offset.x === 0 && offset.y === 0) return "";
+        const labelX = stop.map.x + offset.x / scaleX;
+        const labelY = stop.map.y + offset.y / scaleY;
+        return `<line x1="${stop.map.x}" y1="${stop.map.y}" x2="${labelX}" y2="${labelY}"></line><circle cx="${stop.map.x}" cy="${stop.map.y}" r="10"></circle>`;
+      }).join("");
+      mapPins.querySelectorAll("[data-map-stop]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selected = Number(button.dataset.mapStop);
+          render();
+          stopCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    }
+
+    function focusMapStop(index) {
+      const stop = stops[index];
+      const scaleX = mapCanvas.clientWidth / 2200;
+      const scaleY = mapCanvas.clientHeight / 1555;
+      mapViewport.scrollTo({
+        left: stop.map.x * scaleX - mapViewport.clientWidth / 2,
+        top: stop.map.y * scaleY - mapViewport.clientHeight / 2,
+        behavior: "smooth",
+      });
+      mapCanvas.querySelector(`[data-map-stop="${index}"]`)?.focus({ preventScroll: true });
+    }
+
+    function setMapZoom(nextZoom) {
+      const zoom = Math.max(1, Math.min(2.5, nextZoom));
+      if (zoom === mapZoom) return;
+      const previousWidth = mapCanvas.clientWidth;
+      const previousHeight = mapCanvas.clientHeight;
+      const centerX = mapViewport.scrollLeft + mapViewport.clientWidth / 2;
+      const centerY = mapViewport.scrollTop + mapViewport.clientHeight / 2;
+      mapZoom = zoom;
+      mapCanvas.style.width = `${mapZoom * 100}%`;
+      const ratioX = mapCanvas.clientWidth / previousWidth;
+      const ratioY = mapCanvas.clientHeight / previousHeight;
+      mapViewport.scrollTo({
+        left: centerX * ratioX - mapViewport.clientWidth / 2,
+        top: centerY * ratioY - mapViewport.clientHeight / 2,
+        behavior: "smooth",
+      });
+      zoomLabel.textContent = `${Math.round(mapZoom * 100)}%`;
+      zoomOut.disabled = mapZoom === 1;
+      zoomIn.disabled = mapZoom === 2.5;
+      renderMapPins();
     }
 
     function renderStop() {
@@ -383,6 +548,7 @@
             <p><strong>${isDone ? "Вы уже здесь" : "Нашли это дерево?"}</strong>${isDone ? "Отметка сохранена. Можно перечитать факт или идти дальше." : "Отметьтесь у остановки, чтобы открыть факт и задание."}</p>
             <button class="here-button" id="here-button" type="button" ${isDone || !isUnlocked ? "disabled" : ""}>${isDone ? "✓ Мы здесь" : "Мы тут"}</button>
           </div>
+          <button class="map-link" id="show-on-map" type="button">⌖ Показать это дерево на карте</button>
           <p class="locked-note${isUnlocked ? "" : " visible"}">Сначала пройдите предыдущие остановки — так маршрут откроется по порядку.</p>
           <div class="details${isDone ? " visible" : ""}" id="details">
             <section class="detail-block"><h3 class="detail-label"><span aria-hidden="true">✳</span>Узнайте дерево</h3><p class="fact-text">${stop.fact}</p><div class="did-you-know"><strong>На что обратить внимание.</strong> ${stop.extra}</div></section>
@@ -392,6 +558,10 @@
         </div>`;
 
       const hereButton = document.getElementById("here-button");
+      document.getElementById("show-on-map").addEventListener("click", () => {
+        focusMapStop(index);
+        mapPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       if (!isDone && isUnlocked) {
         hereButton.addEventListener("click", () => {
           if (visited.length !== index) return;
@@ -424,6 +594,14 @@
       if (isTelegramMiniApp) telegramApp?.HapticFeedback?.selectionChanged();
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    const mapPanel = document.querySelector(".map-panel");
+    zoomIn.addEventListener("click", () => setMapZoom(mapZoom + 0.25));
+    zoomOut.addEventListener("click", () => setMapZoom(mapZoom - 0.25));
+    document.getElementById("zoom-reset").addEventListener("click", () => {
+      setMapZoom(1);
+      mapViewport.scrollTo({ left: 0, top: 0, behavior: "smooth" });
     });
 
     render();
